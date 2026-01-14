@@ -1,3 +1,4 @@
+from framing import draw_rule_of_thirds, framing_error
 """
 Person Tracker Prototype
 Autonomous Director - Phase 1
@@ -15,6 +16,8 @@ CONFIDENCE_THRESHOLD = 0.5
 # --- Load pre-trained HOG person detector ---
 hog = cv2.HOGDescriptor()
 hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
+
+frame = draw_rule_of_thirds(frame)
 
 def main():
     cap = cv2.VideoCapture(VIDEO_PATH)
@@ -57,6 +60,22 @@ def main():
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
+        # Desired framing point (right rule-of-thirds)
+        target_x = int(w * 2 / 3)
+        target_y = int(h / 2)
+
+        # Draw target framing point
+        cv2.circle(frame, (target_x, target_y), 6, (255, 255, 0), -1)
+
+        # Draw correction vector
+        error_x, error_y = framing_error((cx, cy), (target_x, target_y))
+        cv2.arrowedLine(
+        frame,
+        (cx, cy),
+        (cx + error_x, cy + error_y),
+        (0, 255, 255),
+        2
+    )
     cap.release()
     cv2.destroyAllWindows()
 
